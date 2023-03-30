@@ -5,19 +5,19 @@ namespace RoadTo270.Codecs;
 
 public static class PyListDecoder
 {
-    public static List<int> Decode(PyList list)
+    public static List<T> Decode<T>(PyList list)
     {
-        List<int> decodedList = new List<int>();
+        List<T> decodedList = new List<T>();
         
         PythonEngine.Initialize();
 
         using (Py.GIL())
         {
-            foreach (var listInteger in list)
+            foreach (var listObject in list)
             {
-                var convertedInt = listInteger.As<int>();
+                var convertedValue = listObject.As<T>();
                 
-                decodedList.Add(convertedInt);
+                decodedList.Add(convertedValue);
             }
         }
 

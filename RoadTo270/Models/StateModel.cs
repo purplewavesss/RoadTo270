@@ -16,8 +16,6 @@ public class State
 
     public State(string name, int[] issueScores, Path mapState, int votes)
     {
-        if (issueScores.Length is not 4) throw new ArgumentException("Must include four scores.");
-
         Name = name;
         IssueScores = issueScores;
         MapState = mapState;

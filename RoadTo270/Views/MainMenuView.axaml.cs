@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -31,6 +31,7 @@ public partial class MainMenuView : UserControl
     {
         // Declare lists
         List<Party> parties = new List<Party>();
+        ImmutableArray<Issue> issues = new ImmutableArray<Issue>();
 
         string? filePath = await PromptForFile();
 
@@ -43,18 +44,11 @@ public partial class MainMenuView : UserControl
             dynamic json = Py.Import("json");
             PyDict jsonContents = json.loads(await File.ReadAllTextAsync(filePath));
 
-            var partiesData = jsonContents["Parties"].As<PyDict>();
-
-            foreach (var partyObj in partiesData.Values())
-            {
-                var party = partyObj.As<PyDict>();
-                var colors = PyListDecoder.Decode(party["Color"].As<PyList>());
-
-                Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
-                
-                parties.Add(new Party(party["Name"].As<string>(), colorValues));
-            }
+            parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
+            issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
         }
+        
+        PythonEngine.Shutdown();
     }
 
     private async Task<string?> PromptForFile()
@@ -70,5 +64,38 @@ public partial class MainMenuView : UserControl
         var result = await fileDialog.ShowAsync(window!.MainWindow);
 
         return result?[0];
+    }
+
+    private static List<Party> CreatePartyList(PyDict data)
+    {
+        List<Party> parties = new List<Party>();
+        
+        foreach (var partyObj in data.Values())
+        {
+            var party = partyObj.As<PyDict>();
+            var colors = PyListDecoder.Decode<int>(party["Color"].As<PyList>());
+
+            Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
+                
+            parties.Add(new Party(party["Name"].As<string>(), colorValues));
+        }
+
+        return parties;
+    }
+    
+    private static ImmutableArray<Issue> CreateIssuesList(PyDict data)
+    {
+        Issue[] issues = new Issue[data.Length() - 1];
+
+        foreach (var issueObj in data.Values())
+        {
+            var issue = issueObj.As<PyDict>();
+            var positions = PyListDecoder.Decode<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
+            var constraints = PyListDecoder.Decode<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
+
+            issues[issue["Index"].As<int>()] = new Issue(issue["Name"].As<String>(), positions, constraints);
+        }
+
+        return issues.ToImmutableArray();
     }
 }
