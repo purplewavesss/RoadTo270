@@ -1,0 +1,23 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+             x:Class="RoadTo270.Views.MainMenuView"
+             Width="800" Height="500">
+    <Grid RowDefinitions="*,*" Name="MainMenuGrid">
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Name="ButtonsGrid">
+            <StackPanel Grid.Column="1" Name="ButtonsPanel">
+                <StackPanel.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Styles>
+                
+                <Button Click="LoadScenario">Load Scenario</Button>
+                <Button>Test</Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

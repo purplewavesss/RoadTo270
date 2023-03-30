@@ -67,6 +67,7 @@
       "Name": "bleh",
       "Description": "bleh",
       "ImagePath": "bleh",
+      "AdvisorImagePath": "bleh",
       "Affiliation": "bleh",
       "HomeState": "bleh",
       "IssueScores": [20, 30, 10, 70, 50],
