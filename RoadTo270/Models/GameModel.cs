@@ -5,14 +5,14 @@ namespace RoadTo270.Models;
 
 public class Game
 {
-    public readonly List<Party> Parties;
+    public readonly ImmutableArray<Party> Parties;
     public readonly ImmutableArray<Issue> Issues;
-    public readonly List<State> States;
-    public readonly List<Candidate> Candidates;
-    public readonly Dictionary<string, List<Question>> CandidateQuestions;
+    public readonly ImmutableArray<State> States;
+    public readonly ImmutableArray<Candidate> Candidates;
+    public readonly ImmutableDictionary<string, List<Question>> CandidateQuestions;
 
-    public Game(List<Party> parties, ImmutableArray<Issue> issues, List<State> states, List<Candidate> candidates, 
-        Dictionary<string, List<Question>> candidateQuestions)
+    public Game(ImmutableArray<Party> parties, ImmutableArray<Issue> issues, ImmutableArray<State> states, 
+        ImmutableArray<Candidate> candidates, ImmutableDictionary<string, List<Question>> candidateQuestions)
     {
         Parties = parties;
         Issues = issues;

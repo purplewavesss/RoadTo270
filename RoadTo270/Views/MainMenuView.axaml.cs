@@ -30,7 +30,7 @@ public partial class MainMenuView : UserControl
     private async void LoadScenario(object? sender, RoutedEventArgs e)
     {
         // Declare lists
-        List<Party> parties = new List<Party>();
+        ImmutableArray<Party> parties = new ImmutableArray<Party>();
         ImmutableArray<Issue> issues = new ImmutableArray<Issue>();
 
         string? filePath = await PromptForFile();
@@ -66,7 +66,7 @@ public partial class MainMenuView : UserControl
         return result?[0];
     }
 
-    private static List<Party> CreatePartyList(PyDict data)
+    private static ImmutableArray<Party> CreatePartyList(PyDict data)
     {
         List<Party> parties = new List<Party>();
         
@@ -80,7 +80,7 @@ public partial class MainMenuView : UserControl
             parties.Add(new Party(party["Name"].As<string>(), colorValues));
         }
 
-        return parties;
+        return parties.ToImmutableArray();
     }
     
     private static ImmutableArray<Issue> CreateIssuesList(PyDict data)
