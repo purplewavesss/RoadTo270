@@ -45,14 +45,14 @@
   
   "States":
   {
-    "bleh":
+    "Utah":
     {
       "Name": "Utah",
       "IssueScores": [19, 30, 10, 70, 50],
       "Votes": 32
     },
     
-    "dleh":
+    "North Dakota":
     {
       "Name": "NorthDakota",
       "IssueScores": [19, 30, 10, 70, 51],

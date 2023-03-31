@@ -3,9 +3,8 @@ using System.Linq;
 
 namespace RoadTo270.Models;
 
-public class Candidate
+public class Candidate: NamedObject
 {
-    public readonly string Name;
     public readonly string Description;
     public readonly string ImagePath;
     public readonly string AdvisorImagePath;
@@ -17,9 +16,8 @@ public class Candidate
     public readonly double AggregateScore;
 
     public Candidate(string name, string description, string imagePath, string advisorImagePath, Party affiliation, State homeState, int[] issueScores, 
-        ImmutableArray<double> stateModifiers, bool isRunningMate)
+        ImmutableArray<double> stateModifiers, bool isRunningMate) : base(name)
     {
-        Name = name;
         Description = description;
         ImagePath = imagePath;
         AdvisorImagePath = advisorImagePath;

@@ -78,6 +78,33 @@ public class SerializationTests
         
         Assert.That(candidates.Length is 2, Is.True);
     }
+    
+    [Test, Order(3)]
+    public void SerializeTicketsTest()
+    {
+        ImmutableArray<Party> parties = new ImmutableArray<Party>();
+        List<State> statesList = new List<State>();
+        statesList.Add(new ("Utah", new [] {19, 30, 10, 70, 50}, 32));
+        statesList.Add(new ("NorthDakota", new [] {19, 30, 10, 70, 51}, 34));
+        var states = statesList.ToImmutableArray();
+        ImmutableArray<Candidate> candidates = new ImmutableArray<Candidate>();
+        ImmutableArray<Ticket> tickets = new ImmutableArray<Ticket>();
+
+        PythonEngine.Initialize();
+        
+        using (Py.GIL())
+        {
+            dynamic json = Py.Import("json");
+            PyDict jsonContents = json.loads(File.ReadAllText("../../../../RoadTo270/test.json"));
+            parties = Methods.CreatePartyList(jsonContents["Parties"].As<PyDict>());
+            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            tickets = Methods.CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
+        }
+        
+        PythonEngine.Shutdown();
+        
+        Assert.That(tickets.Length is 1, Is.True);
+    }
 }
 
 public static class Methods
@@ -126,12 +153,8 @@ public static class Methods
         foreach (var candidateObj in data.Values())
         {
             var candidate = candidateObj.As<PyDict>();
-            var affiliation = (from party in parties
-                where party.Name == candidate["Affiliation"].As<string>()
-                select party).ToList()[0];
-            var homeState = (from state in states
-                where state.Name == candidate["HomeState"].As<string>()
-                select state).ToList()[0];
+            var affiliation = NamedObject.GetObject(candidate["Affiliation"].As<string>(), parties) as Party;
+            var homeState = NamedObject.GetObject(candidate["HomeState"].As<string>(), states) as State;
             var issueScores = PyObjectDecoder.DecodeToArray<int>(candidate["IssueScores"].As<PyList>());
             var stateModifiers = PyObjectDecoder.DecodeToArray<double>(candidate["StateModifiers"].As<PyList>()).ToImmutableArray();
             candidates.Add(new Candidate(candidate["Name"].As<string>(), candidate["Description"].As<string>(),
@@ -140,5 +163,21 @@ public static class Methods
         }
 
         return candidates.ToImmutableArray();
+    }
+    
+    public static ImmutableArray<Ticket> CreateTicketsList(PyDict data, ImmutableArray<Party> parties, ImmutableArray<Candidate> candidates)
+    {
+        List<Ticket> tickets = new List<Ticket>();
+
+        foreach (var ticketObj in data.Values())
+        {
+            var ticket = ticketObj.As<PyDict>();
+            var president = NamedObject.GetObject(ticket["President"].As<string>(), candidates) as Candidate;
+            var vicePresident = NamedObject.GetObject(ticket["VicePresident"].As<string>(), candidates) as Candidate;
+            var affiliation = NamedObject.GetObject(ticket["Affiliation"].As<string>(), parties) as Party;
+            tickets.Add(new Ticket(president!, vicePresident!, affiliation!));
+        }
+
+        return tickets.ToImmutableArray();
     }
 }

@@ -19,8 +19,8 @@ public class Ticket
         if (President.HomeState == VicePresident.HomeState) throw new InvalidOperationException("Two candidates " +
             "can not have the same home state!");
         
-        IssueScores = new double[3];
-        StateModifiers = new double[3];
+        IssueScores = new double[President.IssueScores.Length];
+        StateModifiers = new double[President.StateModifiers.Length];
 
         for (var scoreIndex = 0; scoreIndex < President.IssueScores.Length; scoreIndex++)
         {

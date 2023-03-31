@@ -2,14 +2,12 @@
 
 namespace RoadTo270.Models;
 
-public class Party
+public class Party: NamedObject
 {
-    public readonly string Name;
     public readonly Tuple<int, int, int> Color;
 
-    public Party(string name, Tuple<int, int, int> color)
+    public Party(string name, Tuple<int, int, int> color) : base(name)
     {
-        Name = name;
         Color = color;
     }
 }

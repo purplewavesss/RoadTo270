@@ -3,15 +3,13 @@ using System.Collections.Immutable;
 
 namespace RoadTo270.Models;
 
-public class Issue
+public class Issue: NamedObject
 {
-    public readonly string Name;
     public readonly ImmutableArray<string> Positions;
     public readonly ImmutableArray<int> Constraints;
 
-    public Issue(string name, ImmutableArray<string> positions, ImmutableArray<int> constraints)
+    public Issue(string name, ImmutableArray<string> positions, ImmutableArray<int> constraints) : base(name)
     {
-        Name = name;
         Positions = positions;
         Constraints = constraints;
     }

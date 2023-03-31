@@ -30,12 +30,6 @@ public partial class MainMenuView : UserControl
 
     private async void LoadScenario(object? sender, RoutedEventArgs e)
     {
-        // Declare lists
-        ImmutableArray<Party> parties = new ImmutableArray<Party>();
-        ImmutableArray<Issue> issues = new ImmutableArray<Issue>();
-        ImmutableArray<State> states = new ImmutableArray<State>();
-        ImmutableArray<Candidate> candidates = new ImmutableArray<Candidate>();
-
         string? filePath = await PromptForFile();
 
         if (filePath is null) return;
@@ -47,10 +41,11 @@ public partial class MainMenuView : UserControl
             dynamic json = Py.Import("json");
             PyDict jsonContents = json.loads(await File.ReadAllTextAsync(filePath));
 
-            parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
-            issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
-            states = CreateStatesList(jsonContents["States"].As<PyDict>());
-            candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            var parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
+            var issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
+            var states = CreateStatesList(jsonContents["States"].As<PyDict>());
+            var candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            var tickets = CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
         }
         
         PythonEngine.Shutdown();
@@ -130,12 +125,8 @@ public partial class MainMenuView : UserControl
         foreach (var candidateObj in data.Values())
         {
             var candidate = candidateObj.As<PyDict>();
-            var affiliation = (from party in parties
-                where party.Name == candidate["Affiliation"].As<string>()
-                select party).ToList()[0];
-            var homeState = (from state in states
-                where state.Name == candidate["HomeState"].As<string>()
-                select state).ToList()[0];
+            var affiliation = NamedObject.GetObject(candidate["Affiliation"].As<string>(), parties) as Party;
+            var homeState = NamedObject.GetObject(candidate["HomeState"].As<string>(), states) as State;
             var issueScores = PyObjectDecoder.DecodeToArray<int>(candidate["IssueScores"].As<PyList>());
             var stateModifiers = PyObjectDecoder.DecodeToArray<double>(candidate["StateModifiers"].As<PyList>()).ToImmutableArray();
             candidates.Add(new Candidate(candidate["Name"].As<string>(), candidate["Description"].As<string>(),
@@ -144,6 +135,22 @@ public partial class MainMenuView : UserControl
         }
 
         return candidates.ToImmutableArray();
+    }
+
+    private static ImmutableArray<Ticket> CreateTicketsList(PyDict data, ImmutableArray<Party> parties, ImmutableArray<Candidate> candidates)
+    {
+        List<Ticket> tickets = new List<Ticket>();
+
+        foreach (var ticketObj in data.Values())
+        {
+            var ticket = ticketObj.As<PyDict>();
+            var president = NamedObject.GetObject(ticket["President"].As<string>(), candidates) as Candidate;
+            var vicePresident = NamedObject.GetObject(ticket["VicePresident"].As<string>(), candidates) as Candidate;
+            var affiliation = NamedObject.GetObject(ticket["Affiliation"].As<string>(), parties) as Party;
+            tickets.Add(new Ticket(president!, vicePresident!, affiliation!));
+        }
+
+        return tickets.ToImmutableArray();
     }
 
     private MainWindow GetMainWindow()
