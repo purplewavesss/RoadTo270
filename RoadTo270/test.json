@@ -69,9 +69,9 @@
       "ImagePath": "bleh",
       "AdvisorImagePath": "bleh",
       "Affiliation": "bleh",
-      "HomeState": "bleh",
+      "HomeState": "Utah",
       "IssueScores": [20, 30, 10, 70, 50],
-      "StateModifiers": [7],
+      "StateModifiers": [7, 13],
       "IsRunningMate": false
     },
 
@@ -80,10 +80,11 @@
       "Name": "dleh",
       "Description": "dleh",
       "ImagePath": "dleh",
-      "Affiliation": "dleh",
-      "HomeState": "dleh",
+      "AdvisorImagePath": "bleh",
+      "Affiliation": "bleh",
+      "HomeState": "NorthDakota",
       "IssueScores": [21, 30, 10, 70, 50],
-      "StateModifiers": [7],
+      "StateModifiers": [7, 14],
       "IsRunningMate": true
     }
   },

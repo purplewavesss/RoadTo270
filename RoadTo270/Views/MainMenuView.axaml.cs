@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -33,6 +34,7 @@ public partial class MainMenuView : UserControl
         ImmutableArray<Party> parties = new ImmutableArray<Party>();
         ImmutableArray<Issue> issues = new ImmutableArray<Issue>();
         ImmutableArray<State> states = new ImmutableArray<State>();
+        ImmutableArray<Candidate> candidates = new ImmutableArray<Candidate>();
 
         string? filePath = await PromptForFile();
 
@@ -48,6 +50,7 @@ public partial class MainMenuView : UserControl
             parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
             issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
             states = CreateStatesList(jsonContents["States"].As<PyDict>());
+            candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
         }
         
         PythonEngine.Shutdown();
@@ -55,15 +58,12 @@ public partial class MainMenuView : UserControl
 
     private async Task<string?> PromptForFile()
     {
-        var context = DataContext as MainMenuViewModel;
-        var window = context!.GameApp.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-
         OpenFileDialog fileDialog = new OpenFileDialog
         { Filters = new List<FileDialogFilter> 
             { new() { Name = "JSON files", Extensions = { "json", "JSON" }} }, 
           AllowMultiple = false
         };
-        var result = await fileDialog.ShowAsync(window!.MainWindow);
+        var result = await fileDialog.ShowAsync(GetMainWindow());
 
         return result?[0];
     }
@@ -116,10 +116,34 @@ public partial class MainMenuView : UserControl
             var statePath = context!.MainWindowMapView.Get<Avalonia.Controls.Shapes.Path>(name);
             var issuesScores = PyObjectDecoder.DecodeToArray<int>(state["IssueScores"].As<PyList>());
             
-            states.Add(new State(name, issuesScores, statePath, state["Votes"].As<int>()));
+            states.Add(new State(name, issuesScores, state["Votes"].As<int>(), statePath));
         }
 
         return states.ToImmutableArray();
+    }
+    
+    private static ImmutableArray<Candidate> CreateCandidatesList(PyDict data, ImmutableArray<Party> parties, 
+        ImmutableArray<State> states)
+    {
+        List<Candidate> candidates = new List<Candidate>();
+
+        foreach (var candidateObj in data.Values())
+        {
+            var candidate = candidateObj.As<PyDict>();
+            var affiliation = (from party in parties
+                where party.Name == candidate["Affiliation"].As<string>()
+                select party).ToList()[0];
+            var homeState = (from state in states
+                where state.Name == candidate["HomeState"].As<string>()
+                select state).ToList()[0];
+            var issueScores = PyObjectDecoder.DecodeToArray<int>(candidate["IssueScores"].As<PyList>());
+            var stateModifiers = PyObjectDecoder.DecodeToArray<double>(candidate["StateModifiers"].As<PyList>()).ToImmutableArray();
+            candidates.Add(new Candidate(candidate["Name"].As<string>(), candidate["Description"].As<string>(),
+                candidate["ImagePath"].As<string>(), candidate["AdvisorImagePath"].As<string>(),
+                affiliation, homeState, issueScores, stateModifiers, candidate["IsRunningMate"].As<bool>()));
+        }
+
+        return candidates.ToImmutableArray();
     }
 
     private MainWindow GetMainWindow()

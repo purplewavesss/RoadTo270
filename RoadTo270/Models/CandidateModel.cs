@@ -11,23 +11,23 @@ public class Candidate
     public readonly string AdvisorImagePath;
     public readonly Party Affiliation;
     public readonly State HomeState;
-    public readonly ImmutableArray<int> IssueScores;
+    public readonly int[] IssueScores;
     public readonly ImmutableArray<double> StateModifiers;
     public readonly bool IsRunningMate;
     public readonly double AggregateScore;
 
-    public Candidate(string name, string description, string imagePath, Party affiliation, State homeState, ImmutableArray<int> issueScores, 
-        ImmutableArray<double> stateModifiers, bool isRunningMate, string advisorImagePath)
+    public Candidate(string name, string description, string imagePath, string advisorImagePath, Party affiliation, State homeState, int[] issueScores, 
+        ImmutableArray<double> stateModifiers, bool isRunningMate)
     {
         Name = name;
         Description = description;
         ImagePath = imagePath;
+        AdvisorImagePath = advisorImagePath;
         Affiliation = affiliation;
         HomeState = homeState;
         IssueScores = issueScores;
         StateModifiers = stateModifiers;
         IsRunningMate = isRunningMate;
-        AdvisorImagePath = advisorImagePath;
         AggregateScore = IssueScores.Average();
     }
 }

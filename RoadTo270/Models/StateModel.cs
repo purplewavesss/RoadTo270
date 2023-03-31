@@ -9,11 +9,11 @@ public class State
     public readonly string Name;
     public readonly double AggregateScore;
     public readonly int[] IssueScores;
-    public readonly Path MapState;
     public readonly int Votes;
+    public readonly Path? MapState;
     public readonly Dictionary<string, double> Support;
 
-    public State(string name, int[] issueScores, Path mapState, int votes)
+    public State(string name, int[] issueScores, int votes, Path? mapState = null)
     {
         Name = name;
         IssueScores = issueScores;
