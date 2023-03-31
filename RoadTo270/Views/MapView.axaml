@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RoadTo270.Views.MapView">
-    <Viewbox Stretch="Uniform">
+    <Viewbox Stretch="Uniform" Name="MapBox">
         <Canvas Name="Map" Width="1000" Height="589">
             <Canvas.RenderTransform>
                 <TranslateTransform X="0" Y="0"/>

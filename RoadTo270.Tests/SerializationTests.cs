@@ -64,7 +64,7 @@ public static class Methods
         foreach (var partyObj in data.Values())
         {
             var party = partyObj.As<PyDict>();
-            var colors = PyListDecoder.Decode<int>(party["Color"].As<PyList>());
+            var colors = PyObjectDecoder.DecodeToList<int>(party["Color"].As<PyList>());
 
             Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
                 
@@ -81,8 +81,8 @@ public static class Methods
         foreach (var issueObj in data.Values())
         {
             var issue = issueObj.As<PyDict>();
-            var positions = PyListDecoder.Decode<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
-            var constraints = PyListDecoder.Decode<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
+            var positions = PyObjectDecoder.DecodeToList<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
+            var constraints = PyObjectDecoder.DecodeToList<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
 
             issues[issue["Index"].As<int>()] = new Issue(issue["Name"].As<String>(), positions, constraints);
         }

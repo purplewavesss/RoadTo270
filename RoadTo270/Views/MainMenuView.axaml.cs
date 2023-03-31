@@ -32,6 +32,7 @@ public partial class MainMenuView : UserControl
         // Declare lists
         ImmutableArray<Party> parties = new ImmutableArray<Party>();
         ImmutableArray<Issue> issues = new ImmutableArray<Issue>();
+        ImmutableArray<State> states = new ImmutableArray<State>();
 
         string? filePath = await PromptForFile();
 
@@ -46,6 +47,7 @@ public partial class MainMenuView : UserControl
 
             parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
             issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
+            states = CreateStatesList(jsonContents["States"].As<PyDict>());
         }
         
         PythonEngine.Shutdown();
@@ -73,11 +75,14 @@ public partial class MainMenuView : UserControl
         foreach (var partyObj in data.Values())
         {
             var party = partyObj.As<PyDict>();
-            var colors = PyListDecoder.Decode<int>(party["Color"].As<PyList>());
+            var colors = PyObjectDecoder.DecodeToList<int>(party["Color"].As<PyList>());
 
             Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
-                
-            parties.Add(new Party(party["Name"].As<string>(), colorValues));
+
+            using (Py.GIL())
+            {
+                parties.Add(new Party(party["Name"].As<string>(), colorValues));
+            }
         }
 
         return parties.ToImmutableArray();
@@ -85,17 +90,42 @@ public partial class MainMenuView : UserControl
     
     private static ImmutableArray<Issue> CreateIssuesList(PyDict data)
     {
-        Issue[] issues = new Issue[data.Length() - 1];
+        Issue[] issues = new Issue[data.Length()];
 
         foreach (var issueObj in data.Values())
         {
             var issue = issueObj.As<PyDict>();
-            var positions = PyListDecoder.Decode<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
-            var constraints = PyListDecoder.Decode<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
+            var positions = PyObjectDecoder.DecodeToList<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
+            var constraints = PyObjectDecoder.DecodeToList<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
 
             issues[issue["Index"].As<int>()] = new Issue(issue["Name"].As<String>(), positions, constraints);
         }
 
         return issues.ToImmutableArray();
+    }
+
+    private ImmutableArray<State> CreateStatesList(PyDict data)
+    {
+        List<State> states = new List<State>();
+
+        foreach (var stateObj in data.Values())
+        {
+            var state = stateObj.As<PyDict>();
+            var name = state["Name"].As<string>();
+            var context = GetMainWindow().DataContext as MainWindowViewModel;
+            var statePath = context!.MainWindowMapView.Get<Avalonia.Controls.Shapes.Path>(name);
+            var issuesScores = PyObjectDecoder.DecodeToArray<int>(state["IssueScores"].As<PyList>());
+            
+            states.Add(new State(name, issuesScores, statePath, state["Votes"].As<int>()));
+        }
+
+        return states.ToImmutableArray();
+    }
+
+    private MainWindow GetMainWindow()
+    {
+        var context = DataContext as MainMenuViewModel;
+        var window = context!.GameApp.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        return (window!.MainWindow as MainWindow)!;
     }
 }

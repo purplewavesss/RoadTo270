@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using RoadTo270.Views;
 
 namespace RoadTo270.ViewModels;
 
@@ -12,11 +13,14 @@ public class MainWindowViewModel : ViewModelBase
         private set => this.RaiseAndSetIfChanged(ref content, value);
     }
     
+    public readonly MapView MainWindowMapView;
+    
     private ViewModelBase content;
 
     public MainWindowViewModel(App gameApp)
     {
         GameApp = gameApp;
         Content = new MainMenuViewModel(GameApp);
+        MainWindowMapView = new MapView();
     }
 }
