@@ -59,8 +59,8 @@ public class SerializationTests
     {
         ImmutableArray<Party> parties = new ImmutableArray<Party>();
         List<State> statesList = new List<State>();
-        statesList.Add(new ("Utah", new [] {19, 30, 10, 70, 50}, 32));
-        statesList.Add(new ("NorthDakota", new [] {19, 30, 10, 70, 51}, 34));
+        statesList.Add(new ("Utah", new [] {19, 30, 10, 70, 50}, 6, 32));
+        statesList.Add(new ("NorthDakota", new [] {19, 30, 10, 70, 51}, 3, 34));
         var states = statesList.ToImmutableArray();
         ImmutableArray<Candidate> candidates = new ImmutableArray<Candidate>();
 
@@ -84,8 +84,8 @@ public class SerializationTests
     {
         ImmutableArray<Party> parties = new ImmutableArray<Party>();
         List<State> statesList = new List<State>();
-        statesList.Add(new ("Utah", new [] {19, 30, 10, 70, 50}, 32));
-        statesList.Add(new ("NorthDakota", new [] {19, 30, 10, 70, 51}, 34));
+        statesList.Add(new ("Utah", new [] {19, 30, 10, 70, 50}, 6, 32));
+        statesList.Add(new ("NorthDakota", new [] {19, 30, 10, 70, 51}, 3, 34));
         var states = statesList.ToImmutableArray();
         ImmutableArray<Candidate> candidates = new ImmutableArray<Candidate>();
         ImmutableArray<Ticket> tickets = new ImmutableArray<Ticket>();
@@ -113,17 +113,14 @@ public static class Methods
     {
         List<Party> parties = new List<Party>();
         
-        foreach (var partyObj in data.Values())
+        foreach (var partyKey in data.Keys())
         {
-            var party = partyObj.As<PyDict>();
+            var party = data[partyKey].As<PyDict>();
             var colors = PyObjectDecoder.DecodeToList<int>(party["Color"].As<PyList>());
 
             Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
 
-            using (Py.GIL())
-            {
-                parties.Add(new Party(party["Name"].As<string>(), colorValues));
-            }
+            parties.Add(new Party(partyKey.As<string>(), colorValues));
         }
 
         return parties.ToImmutableArray();
@@ -133,13 +130,13 @@ public static class Methods
     {
         Issue[] issues = new Issue[data.Length()];
 
-        foreach (var issueObj in data.Values())
+        foreach (var issueKey in data.Keys())
         {
-            var issue = issueObj.As<PyDict>();
+            var issue = data[issueKey].As<PyDict>();
             var positions = PyObjectDecoder.DecodeToList<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
             var constraints = PyObjectDecoder.DecodeToList<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
 
-            issues[issue["Index"].As<int>()] = new Issue(issue["Name"].As<String>(), positions, constraints);
+            issues[issue["Index"].As<int>()] = new Issue(issueKey.As<string>(), positions, constraints);
         }
 
         return issues.ToImmutableArray();
@@ -150,14 +147,14 @@ public static class Methods
     {
         List<Candidate> candidates = new List<Candidate>();
 
-        foreach (var candidateObj in data.Values())
+        foreach (var candidateKey in data.Keys())
         {
-            var candidate = candidateObj.As<PyDict>();
+            var candidate = data[candidateKey].As<PyDict>();
             var affiliation = NamedObject.GetObject(candidate["Affiliation"].As<string>(), parties) as Party;
-            var homeState = NamedObject.GetObject(candidate["HomeState"].As<string>(), states) as State;
+            var homeState = NamedObject.GetObject(Functions.RemoveSpaces(candidate["HomeState"].As<string>()), states) as State;
             var issueScores = PyObjectDecoder.DecodeToArray<int>(candidate["IssueScores"].As<PyList>());
             var stateModifiers = PyObjectDecoder.DecodeToArray<double>(candidate["StateModifiers"].As<PyList>()).ToImmutableArray();
-            candidates.Add(new Candidate(candidate["Name"].As<string>(), candidate["Description"].As<string>(),
+            candidates.Add(new Candidate(candidateKey.As<string>(), candidate["Description"].As<string>(),
                 candidate["ImagePath"].As<string>(), candidate["AdvisorImagePath"].As<string>(),
                 affiliation, homeState, issueScores, stateModifiers, candidate["IsRunningMate"].As<bool>()));
         }

@@ -67,17 +67,14 @@ public partial class MainMenuView : UserControl
     {
         List<Party> parties = new List<Party>();
         
-        foreach (var partyObj in data.Values())
+        foreach (var partyKey in data.Keys())
         {
-            var party = partyObj.As<PyDict>();
+            var party = data[partyKey].As<PyDict>();
             var colors = PyObjectDecoder.DecodeToList<int>(party["Color"].As<PyList>());
 
             Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
 
-            using (Py.GIL())
-            {
-                parties.Add(new Party(party["Name"].As<string>(), colorValues));
-            }
+            parties.Add(new Party(partyKey.As<string>(), colorValues));
         }
 
         return parties.ToImmutableArray();
@@ -87,13 +84,13 @@ public partial class MainMenuView : UserControl
     {
         Issue[] issues = new Issue[data.Length()];
 
-        foreach (var issueObj in data.Values())
+        foreach (var issueKey in data.Keys())
         {
-            var issue = issueObj.As<PyDict>();
+            var issue = data[issueKey].As<PyDict>();
             var positions = PyObjectDecoder.DecodeToList<string>(issue["Positions"].As<PyList>()).ToImmutableArray();
             var constraints = PyObjectDecoder.DecodeToList<int>(issue["Constraints"].As<PyList>()).ToImmutableArray();
 
-            issues[issue["Index"].As<int>()] = new Issue(issue["Name"].As<String>(), positions, constraints);
+            issues[issue["Index"].As<int>()] = new Issue(issueKey.As<string>(), positions, constraints);
         }
 
         return issues.ToImmutableArray();
@@ -103,15 +100,15 @@ public partial class MainMenuView : UserControl
     {
         List<State> states = new List<State>();
 
-        foreach (var stateObj in data.Values())
+        foreach (var stateKey in data.Keys())
         {
-            var state = stateObj.As<PyDict>();
-            var name = state["Name"].As<string>();
+            var state = data[stateKey].As<PyDict>();
             var context = GetMainWindow().DataContext as MainWindowViewModel;
-            var statePath = context!.MainWindowMapView.Get<Avalonia.Controls.Shapes.Path>(name);
+            var statePath = context!.MainWindowMapView.Get<Avalonia.Controls.Shapes.Path>(Functions.RemoveSpaces(stateKey.As<string>()));
             var issuesScores = PyObjectDecoder.DecodeToArray<int>(state["IssueScores"].As<PyList>());
             
-            states.Add(new State(name, issuesScores, state["Votes"].As<int>(), statePath));
+            states.Add(new State(Functions.RemoveSpaces(stateKey.As<string>()), issuesScores, 
+                state["ElectoralVotes"].As<int>(), state["Votes"].As<int>(), statePath));
         }
 
         return states.ToImmutableArray();
@@ -122,14 +119,14 @@ public partial class MainMenuView : UserControl
     {
         List<Candidate> candidates = new List<Candidate>();
 
-        foreach (var candidateObj in data.Values())
+        foreach (var candidateKey in data.Keys())
         {
-            var candidate = candidateObj.As<PyDict>();
+            var candidate = data[candidateKey].As<PyDict>();
             var affiliation = NamedObject.GetObject(candidate["Affiliation"].As<string>(), parties) as Party;
-            var homeState = NamedObject.GetObject(candidate["HomeState"].As<string>(), states) as State;
+            var homeState = NamedObject.GetObject(Functions.RemoveSpaces(candidate["HomeState"].As<string>()), states) as State;
             var issueScores = PyObjectDecoder.DecodeToArray<int>(candidate["IssueScores"].As<PyList>());
             var stateModifiers = PyObjectDecoder.DecodeToArray<double>(candidate["StateModifiers"].As<PyList>()).ToImmutableArray();
-            candidates.Add(new Candidate(candidate["Name"].As<string>(), candidate["Description"].As<string>(),
+            candidates.Add(new Candidate(candidateKey.As<string>(), candidate["Description"].As<string>(),
                 candidate["ImagePath"].As<string>(), candidate["AdvisorImagePath"].As<string>(),
                 affiliation, homeState, issueScores, stateModifiers, candidate["IsRunningMate"].As<bool>()));
         }
@@ -147,7 +144,7 @@ public partial class MainMenuView : UserControl
             var president = NamedObject.GetObject(ticket["President"].As<string>(), candidates) as Candidate;
             var vicePresident = NamedObject.GetObject(ticket["VicePresident"].As<string>(), candidates) as Candidate;
             var affiliation = NamedObject.GetObject(ticket["Affiliation"].As<string>(), parties) as Party;
-            tickets.Add(new Ticket(president!, vicePresident!, affiliation!));
+            tickets.Add(new Ticket(president, vicePresident, affiliation));
         }
 
         return tickets.ToImmutableArray();

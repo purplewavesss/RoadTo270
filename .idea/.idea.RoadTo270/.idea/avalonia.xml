@@ -3,6 +3,7 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="RoadTo270/App.axaml" value="RoadTo270/RoadTo270.csproj" />
         <entry key="RoadTo270/Views/MainMenu.axaml" value="RoadTo270/RoadTo270.csproj" />
         <entry key="RoadTo270/Views/MainMenuView.axaml" value="RoadTo270/RoadTo270.csproj" />
         <entry key="RoadTo270/Views/MainWindow.axaml" value="RoadTo270/RoadTo270.csproj" />
