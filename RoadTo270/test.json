@@ -115,5 +115,7 @@
       },
       "Randomize": false
     }
-  }
+  },
+
+  "CurrentQuestion": 0
 }

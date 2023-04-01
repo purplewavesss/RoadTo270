@@ -30,6 +30,14 @@ public partial class MainMenuView : UserControl
 
     private async void LoadScenario(object? sender, RoutedEventArgs e)
     {
+        var parties = new ImmutableArray<Party>();
+        var issues = new ImmutableArray<Issue>();
+        var states = new ImmutableArray<State>();
+        var candidates = new ImmutableArray<Candidate>();
+        var tickets = new ImmutableArray<Ticket>();
+        var candidateQuestions = new Dictionary<Ticket, List<Question>>().ToImmutableDictionary();
+        int currentQuestion;
+        
         string? filePath = await PromptForFile();
 
         if (filePath is null) return;
@@ -41,14 +49,20 @@ public partial class MainMenuView : UserControl
             dynamic json = Py.Import("json");
             PyDict jsonContents = json.loads(await File.ReadAllTextAsync(filePath));
 
-            var parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
-            var issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
-            var states = CreateStatesList(jsonContents["States"].As<PyDict>());
-            var candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
-            var tickets = CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
+            parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
+            issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
+            states = CreateStatesList(jsonContents["States"].As<PyDict>());
+            candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            tickets = CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
+            candidateQuestions = CreateQuestionsList(jsonContents["Questions"].As<PyDict>(), issues, states,
+                candidates, tickets);
+            currentQuestion = jsonContents["CurrentQuestion"].As<int>();
         }
         
         PythonEngine.Shutdown();
+
+        var context = GetMainWindow().DataContext as MainWindowViewModel;
+        context!.Game = new Scenario(parties, issues, states, candidates, tickets, candidateQuestions, currentQuestion);
     }
 
     private async Task<string?> PromptForFile()

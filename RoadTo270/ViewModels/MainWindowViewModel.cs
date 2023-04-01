@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using RoadTo270.Models;
 using RoadTo270.Views;
 
 namespace RoadTo270.ViewModels;
@@ -6,6 +7,7 @@ namespace RoadTo270.ViewModels;
 public class MainWindowViewModel : ViewModelBase
 {
     public App GameApp { get; }
+    public Scenario Game { get; set; }
     
     public ViewModelBase Content
     {

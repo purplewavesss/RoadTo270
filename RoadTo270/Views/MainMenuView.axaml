@@ -6,8 +6,9 @@
              x:Class="RoadTo270.Views.MainMenuView"
              Width="800" Height="500">
     <Grid RowDefinitions="*,*" Name="MainMenuGrid">
+        <Label Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">Logo</Label>
         <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Name="ButtonsGrid">
-            <StackPanel Grid.Column="1" Name="ButtonsPanel">
+            <StackPanel Grid.Column="1" Name="ButtonsPanel" Margin="0, 10">
                 <StackPanel.Styles>
                     <Style Selector="Button">
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -16,7 +17,8 @@
                 </StackPanel.Styles>
                 
                 <Button Click="LoadScenario">Load Scenario</Button>
-                <Button>Test</Button>
+                <Button>Settings</Button>
+                <Button>Credits</Button>
             </StackPanel>
         </Grid>
     </Grid>
