@@ -2,7 +2,7 @@
 
 namespace RoadTo270.Models;
 
-public class Ticket
+public class Ticket: NamedObject
 {
     public readonly Candidate President;
     public readonly Candidate VicePresident;
@@ -10,7 +10,7 @@ public class Ticket
     public readonly double[] IssueScores;
     public readonly double[] StateModifiers;
 
-    public Ticket(Candidate president, Candidate vicePresident, Party affiliation)
+    public Ticket(string name, Candidate president, Candidate vicePresident, Party affiliation) : base(name)
     {
         President = president;
         VicePresident = vicePresident;

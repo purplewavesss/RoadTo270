@@ -9,10 +9,10 @@ public class Game
     public readonly ImmutableArray<Issue> Issues;
     public readonly ImmutableArray<State> States;
     public readonly ImmutableArray<Candidate> Candidates;
-    public readonly ImmutableDictionary<string, List<Question>> CandidateQuestions;
+    public readonly ImmutableDictionary<Candidate, List<Question>> CandidateQuestions;
 
     public Game(ImmutableArray<Party> parties, ImmutableArray<Issue> issues, ImmutableArray<State> states, 
-        ImmutableArray<Candidate> candidates, ImmutableDictionary<string, List<Question>> candidateQuestions)
+        ImmutableArray<Candidate> candidates, ImmutableDictionary<Candidate, List<Question>> candidateQuestions)
     {
         Parties = parties;
         Issues = issues;

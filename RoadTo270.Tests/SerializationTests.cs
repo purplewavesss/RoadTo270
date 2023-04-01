@@ -105,6 +105,39 @@ public class SerializationTests
         
         Assert.That(tickets.Length is 1, Is.True);
     }
+
+    [Test, Order(4)]
+    public void SerializeQuestionsTest()
+    {
+        ImmutableArray<Party> parties = new ImmutableArray<Party>();
+        ImmutableArray<Issue> issues = new ImmutableArray<Issue>();
+        List<State> statesList = new List<State>();
+        statesList.Add(new ("Utah", new [] {19, 30, 10, 70, 50}, 6, 32));
+        statesList.Add(new ("NorthDakota", new [] {19, 30, 10, 70, 51}, 3, 34));
+        var states = statesList.ToImmutableArray();
+        ImmutableArray<Candidate> candidates = new ImmutableArray<Candidate>();
+        ImmutableArray<Ticket> tickets = new ImmutableArray<Ticket>();
+        ImmutableDictionary<Ticket, List<Question>> candidateQuestions =
+            new Dictionary<Ticket, List<Question>>().ToImmutableDictionary();
+
+        PythonEngine.Initialize();
+        
+        using (Py.GIL())
+        {
+            dynamic json = Py.Import("json");
+            PyDict jsonContents = json.loads(File.ReadAllText("../../../../RoadTo270/test.json"));
+            parties = Methods.CreatePartyList(jsonContents["Parties"].As<PyDict>());
+            issues = Methods.CreateIssuesList(jsonContents["Issues"].As<PyDict>());
+            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            tickets = Methods.CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
+            candidateQuestions = Methods.CreateQuestionsList(jsonContents["Questions"].As<PyDict>(), 
+                issues, states, candidates, tickets);
+        }
+        
+        PythonEngine.Shutdown();
+        
+        Assert.That(candidateQuestions.Count is 1, Is.True);
+    }
 }
 
 public static class Methods
@@ -166,15 +199,75 @@ public static class Methods
     {
         List<Ticket> tickets = new List<Ticket>();
 
-        foreach (var ticketObj in data.Values())
+        foreach (var ticketKey in data.Keys())
         {
-            var ticket = ticketObj.As<PyDict>();
+            var ticket = data[ticketKey].As<PyDict>();
             var president = NamedObject.GetObject(ticket["President"].As<string>(), candidates) as Candidate;
             var vicePresident = NamedObject.GetObject(ticket["VicePresident"].As<string>(), candidates) as Candidate;
             var affiliation = NamedObject.GetObject(ticket["Affiliation"].As<string>(), parties) as Party;
-            tickets.Add(new Ticket(president!, vicePresident!, affiliation!));
+            tickets.Add(new Ticket(ticketKey.As<string>(), president, vicePresident, affiliation));
         }
 
         return tickets.ToImmutableArray();
+    }
+    
+    public static ImmutableDictionary<Ticket, List<Question>> CreateQuestionsList(PyDict data, ImmutableArray<Issue> issues,
+        ImmutableArray<State> states, ImmutableArray<Candidate> candidates, ImmutableArray<Ticket> tickets)
+    {
+        var ticketQuestions = new Dictionary<Ticket, List<Question>>();
+        var questions = new List<Question>();
+
+        foreach (var questionKey in data.Keys())
+        {
+            var question = data[questionKey].As<PyDict>();
+            var askedTicketData = PyObjectDecoder.DecodeToArray<string>(question["AskedTickets"].As<PyList>());
+            var askedTickets = askedTicketData.Select(askedTicket => NamedObject.GetObject(askedTicket, tickets) as Ticket).ToList();
+            var options = CreateOptionsList(question["Options"].As<PyDict>(), issues, candidates, states);
+            
+            questions.Add(new Question(questionKey.As<string>(), askedTickets.ToImmutableArray(), options, 
+                question["Randomize"].As<bool>()));
+        }
+
+        foreach (var ticket in tickets)
+        {
+            ticketQuestions.Add(ticket, (from question in questions
+                                 where question.AskedTickets.Contains(ticket)
+                                 select question).ToList());
+        }
+
+        return ticketQuestions.ToImmutableDictionary();
+    }
+
+    private static ImmutableArray<Option> CreateOptionsList(PyDict data, ImmutableArray<Issue> issues, 
+        ImmutableArray<Candidate> candidates, ImmutableArray<State> states)
+    {
+        var options = new List<Option>();
+
+        foreach (var optionsKey in data.Keys())
+        {
+            var option = data[optionsKey].As<PyDict>();
+            var candidateEffectsData = option["CandidateEffects"].As<PyDict>();
+            var stateEffectsData = option["StateEffects"].As<PyDict>();
+            var issueEffectsData = PyObjectDecoder.DecodeToArray<double>(option["IssueEffects"].As<PyList>());
+            
+            var candidateEffects = new Dictionary<Candidate, double>();
+            foreach (var candidateName in candidateEffectsData.Keys())
+                candidateEffects.Add(NamedObject.GetObject(candidateName.As<string>(), candidates) as Candidate, 
+                    candidateEffectsData[candidateName].As<double>());
+            
+            var stateEffects = new Dictionary<State, double>();
+            foreach (var stateName in stateEffectsData.Keys())
+                stateEffects.Add(NamedObject.GetObject(Functions.RemoveSpaces(stateName.As<string>()), states) as State, 
+                    stateEffectsData[stateName].As<double>());
+
+            var issueEffects = new Dictionary<Issue, double>();
+            for (int issueIndex = 0; issueIndex < issues.Length; issueIndex++)
+                issueEffects.Add(issues[issueIndex], issueEffectsData[issueIndex]);
+            
+            options.Add(new Option(optionsKey.As<string>(), candidateEffects.ToImmutableDictionary(), 
+                stateEffects.ToImmutableDictionary(), issueEffects.ToImmutableDictionary(), option["Response"].As<string>()));
+        }
+
+        return options.ToImmutableArray();
     }
 }
