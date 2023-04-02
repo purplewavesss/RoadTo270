@@ -30,4 +30,10 @@
     <ItemGroup>
       <None Remove="python310.dll" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Views\Serialization.cs">
+        <DependentUpon>MainMenuView.axaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

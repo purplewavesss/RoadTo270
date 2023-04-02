@@ -18,7 +18,7 @@
                 
                 <Button Click="LoadScenario">Load Scenario</Button>
                 <Button>Settings</Button>
-                <Button>Credits</Button>
+                <Button Click="Credits">Credits</Button>
             </StackPanel>
         </Grid>
     </Grid>

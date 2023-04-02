@@ -1,6 +1,8 @@
-﻿namespace RoadTo270.ViewModels;
+﻿using RoadTo270.Models.Interfaces;
 
-public class MainMenuViewModel: ViewModelBase
+namespace RoadTo270.ViewModels;
+
+public class MainMenuViewModel: ViewModelBase, IAccessApplication
 {
     public App GameApp { get; }
 

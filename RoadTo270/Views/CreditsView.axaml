@@ -1,0 +1,29 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+             x:Class="RoadTo270.Views.CreditsView"
+             Width="800" Height="500">
+    <StackPanel>
+        <DockPanel>
+            <Button Padding="10" Margin="10" Click="Back">Back</Button>
+        </DockPanel>
+        
+        <StackPanel VerticalAlignment="Bottom" Margin="10">
+            <StackPanel.Styles>
+                <Style Selector="Label">
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="FontSize" Value="36"/>
+                </Style>
+            </StackPanel.Styles>
+            
+            <Label>Created by /u/gavingrotegut</Label>
+            <Label>Inspired by the Campaign Trail by Dan Bryan,</Label>
+            <Label>as well as the New Campaign Trail.</Label>
+            <Label>Written in C# and Avalonia UI.</Label>
+            <Label>Licensed under the GPL.</Label>
+        </StackPanel>
+    </StackPanel>
+</UserControl>
