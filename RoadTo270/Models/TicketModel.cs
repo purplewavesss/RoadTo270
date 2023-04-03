@@ -9,12 +9,14 @@ public class Ticket: NamedObject
     public readonly Party Affiliation;
     public readonly double[] IssueScores;
     public readonly double[] StateModifiers;
+    public readonly bool Playable;
 
-    public Ticket(string name, Candidate president, Candidate vicePresident, Party affiliation) : base(name)
+    public Ticket(string name, Candidate president, Candidate vicePresident, Party affiliation, bool playable) : base(name)
     {
         President = president;
         VicePresident = vicePresident;
         Affiliation = affiliation;
+        Playable = playable;
 
         if (President.HomeState == VicePresident.HomeState) throw new InvalidOperationException("Two candidates " +
             "can not have the same home state!");

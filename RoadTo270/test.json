@@ -96,7 +96,8 @@
     {
       "President": "bleh",
       "VicePresident": "dleh",
-      "Affiliation": "bleh"
+      "Affiliation": "bleh",
+      "Playable": true
     }
   },
   

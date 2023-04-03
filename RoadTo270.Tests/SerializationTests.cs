@@ -228,7 +228,8 @@ public static class Methods
             var president = NamedObject.GetObject(ticket["President"].As<string>(), candidates) as Candidate;
             var vicePresident = NamedObject.GetObject(ticket["VicePresident"].As<string>(), candidates) as Candidate;
             var affiliation = NamedObject.GetObject(ticket["Affiliation"].As<string>(), parties) as Party;
-            tickets.Add(new Ticket(ticketKey.As<string>(), president, vicePresident, affiliation));
+            tickets.Add(new Ticket(ticketKey.As<string>(), president, vicePresident, affiliation, 
+                ticket["Playable"].As<bool>()));
         }
 
         return tickets.ToImmutableArray();
