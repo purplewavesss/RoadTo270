@@ -11,12 +11,12 @@ public class Candidate: NamedObject
     public readonly Party Affiliation;
     public readonly State HomeState;
     public readonly int[] IssueScores;
-    public readonly ImmutableArray<double> StateModifiers;
+    public readonly ImmutableDictionary<State, double> StateModifiers;
     public readonly bool IsRunningMate;
     public readonly double AggregateScore;
 
     public Candidate(string name, string description, string imagePath, string advisorImagePath, Party affiliation, State homeState, int[] issueScores, 
-        ImmutableArray<double> stateModifiers, bool isRunningMate) : base(name)
+        ImmutableDictionary<State, double> stateModifiers, bool isRunningMate) : base(name)
     {
         Description = description;
         ImagePath = imagePath;

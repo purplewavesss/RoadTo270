@@ -7,7 +7,6 @@ using Avalonia.Controls;
 using Python.Runtime;
 using RoadTo270.Codecs;
 using RoadTo270.Models;
-using RoadTo270.Models.Interfaces;
 using RoadTo270.ViewModels;
 
 namespace RoadTo270.Views;
@@ -111,10 +110,30 @@ public partial class MainMenuView : UserControl
                 var affiliation = NamedObject.GetObject(candidate["Affiliation"].As<string>(), parties) as Party;
                 var homeState = NamedObject.GetObject(Functions.RemoveSpaces(candidate["HomeState"].As<string>()), states) as State;
                 var issueScores = PyObjectDecoder.DecodeToArray<int>(candidate["IssueScores"].As<PyList>());
-                var stateModifiers = PyObjectDecoder.DecodeToArray<double>(candidate["StateModifiers"].As<PyList>()).ToImmutableArray();
+
+                var stateModifiers = new Dictionary<State, double>();
+                var stateModifiersKeys = new List<State>();
+                var stateModifiersValues = new List<double>();
+                
+                foreach (var stateName in candidate["StateModifiers"].As<PyDict>().Keys())
+                {
+                    stateModifiersKeys.Add(NamedObject.GetObject(Functions.RemoveSpaces(stateName.As<string>()), states) as State);
+                }
+                
+                foreach (var modifier in candidate["StateModifiers"].As<PyDict>().Values())
+                {
+                    stateModifiersValues.Add(modifier.As<double>());
+                }
+
+                for (int stateIndex = 0; stateIndex < stateModifiersKeys.Count; stateIndex++)
+                {
+                    stateModifiers.Add(stateModifiersKeys[stateIndex], stateModifiersValues[stateIndex]);
+                }
+                
                 candidates.Add(new Candidate(candidateKey.As<string>(), candidate["Description"].As<string>(),
                     candidate["ImagePath"].As<string>(), candidate["AdvisorImagePath"].As<string>(),
-                    affiliation, homeState, issueScores, stateModifiers, candidate["IsRunningMate"].As<bool>()));
+                    affiliation, homeState, issueScores, stateModifiers.ToImmutableDictionary(), 
+                    candidate["IsRunningMate"].As<bool>()));
             }
 
             return candidates.ToImmutableArray();
@@ -159,12 +178,13 @@ public partial class MainMenuView : UserControl
             foreach (var questionKey in data.Keys())
             {
                 var question = data[questionKey].As<PyDict>();
+                var prerequisites = PyObjectDecoder.DecodeToDictionary<string, bool>(question["Prerequisites"].As<PyDict>());
                 var askedTicketData = PyObjectDecoder.DecodeToArray<string>(question["AskedTickets"].As<PyList>());
                 var askedTickets = askedTicketData.Select(askedTicket => NamedObject.GetObject(askedTicket, tickets) as Ticket).ToList();
                 var options = CreateOptionsList(question["Options"].As<PyDict>(), issues, candidates, states);
             
-                questions.Add(new Question(questionKey.As<string>(), askedTickets.ToImmutableArray(), options, 
-                    question["Randomize"].As<bool>()));
+                questions.Add(new Question(questionKey.As<string>(), prerequisites.ToImmutableDictionary(), 
+                    askedTickets.ToImmutableArray(), options, question["Randomize"].As<bool>()));
             }
 
             foreach (var ticket in tickets)
@@ -215,9 +235,12 @@ public partial class MainMenuView : UserControl
                 var issueEffects = new Dictionary<Issue, double>();
                 for (int issueIndex = 0; issueIndex < issues.Length; issueIndex++)
                     issueEffects.Add(issues[issueIndex], issueEffectsData[issueIndex]);
+
+                var gameEffects = PyObjectDecoder.DecodeToDictionary<string, bool>(option["GameEffects"].As<PyDict>());
             
                 options.Add(new Option(optionsKey.As<string>(), candidateEffects.ToImmutableDictionary(), 
-                    stateEffects.ToImmutableDictionary(), issueEffects.ToImmutableDictionary(), option["Response"].As<string>()));
+                    stateEffects.ToImmutableDictionary(), issueEffects.ToImmutableDictionary(), 
+                    gameEffects.ToImmutableDictionary(), option["Response"].As<string>()));
             }
 
             return options.ToImmutableArray();

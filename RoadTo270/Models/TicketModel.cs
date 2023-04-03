@@ -20,7 +20,7 @@ public class Ticket: NamedObject
             "can not have the same home state!");
         
         IssueScores = new double[President.IssueScores.Length];
-        StateModifiers = new double[President.StateModifiers.Length];
+        StateModifiers = new double[President.StateModifiers.Count];
 
         for (var scoreIndex = 0; scoreIndex < President.IssueScores.Length; scoreIndex++)
         {

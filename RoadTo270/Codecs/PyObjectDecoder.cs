@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Python.Runtime;
 
 namespace RoadTo270.Codecs;
@@ -28,22 +29,31 @@ public static class PyObjectDecoder
     
     public static List<T> DecodeToList<T>(PyList list)
     {
-        List<T> decodedList = new List<T>();
+        var decodedList = new List<T>();
         
         if (!PythonEngine.IsInitialized) PythonEngine.Initialize();
 
         using (Py.GIL())
         {
-            foreach (var listObject in list)
-            {
-                var convertedValue = listObject.As<T>();
-                
-                decodedList.Add(convertedValue);
-            }
+            decodedList.AddRange(list.Select(listObject => listObject.As<T>()));
         }
         
         if (!PythonEngine.IsInitialized) PythonEngine.Shutdown();
 
         return decodedList;
+    }
+
+    public static Dictionary<TKey, TValue> DecodeToDictionary<TKey, TValue>(PyDict dict) where TKey : notnull where TValue : notnull
+    {
+        var decodedDict = new Dictionary<TKey, TValue>();
+        var keys = new List<TKey>();
+        var values = new List<TValue>();
+
+        foreach (var key in dict.Keys()) keys.Add(key.As<TKey>());
+        foreach (var value in dict.Values()) values.Add(value.As<TValue>());
+
+        for (int dictIndex = 0; dictIndex < keys.Count; dictIndex++) decodedDict.Add(keys[dictIndex], values[dictIndex]);
+
+        return decodedDict;
     }
 }
