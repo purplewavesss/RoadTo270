@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Python.Runtime;
 using RoadTo270.Codecs;
@@ -13,18 +12,6 @@ namespace RoadTo270.Views;
 
 public partial class MainMenuView : UserControl
 {
-    private async Task<string?> PromptForFile()
-    {
-        OpenFileDialog fileDialog = new OpenFileDialog
-        { Filters = new List<FileDialogFilter> 
-            { new() { Name = "JSON files", Extensions = { "json", "JSON" }} }, 
-          AllowMultiple = false
-        };
-        var result = await fileDialog.ShowAsync(Functions.GetMainWindow(DataContext as MainMenuViewModel));
-
-        return result?[0];
-    }
-
     private static ImmutableArray<Party> CreatePartyList(PyDict data)
     {
         List<Party> parties = new List<Party>();
@@ -98,7 +85,7 @@ public partial class MainMenuView : UserControl
     }
     
     private static ImmutableArray<Candidate> CreateCandidatesList(PyDict data, ImmutableArray<Party> parties, 
-        ImmutableArray<State> states)
+        ImmutableArray<State> states, string filePath)
     {
         try
         {
@@ -133,7 +120,7 @@ public partial class MainMenuView : UserControl
                 candidates.Add(new Candidate(candidateKey.As<string>(), candidate["Description"].As<string>(),
                     candidate["ImagePath"].As<string>(), candidate["AdvisorImagePath"].As<string>(),
                     affiliation, homeState, issueScores, stateModifiers.ToImmutableDictionary(), 
-                    candidate["IsRunningMate"].As<bool>()));
+                    candidate["IsRunningMate"].As<bool>(), filePath));
             }
 
             return candidates.ToImmutableArray();

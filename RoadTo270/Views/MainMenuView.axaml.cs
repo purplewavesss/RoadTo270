@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Python.Runtime;
@@ -53,7 +53,7 @@ public partial class MainMenuView : UserControl
             parties = CreatePartyList(jsonContents["Parties"].As<PyDict>());
             issues = CreateIssuesList(jsonContents["Issues"].As<PyDict>());
             states = CreateStatesList(jsonContents["States"].As<PyDict>());
-            candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            candidates = CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states, filePath);
             tickets = CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
             candidateQuestions = CreateQuestionsList(jsonContents["Questions"].As<PyDict>(), issues, states,
                 candidates, tickets);
@@ -64,5 +64,16 @@ public partial class MainMenuView : UserControl
 
         var context = Functions.GetMainWindow(DataContext as MainMenuViewModel).DataContext as MainWindowViewModel;
         context!.Game = new Scenario(parties, issues, states, candidates, tickets, candidateQuestions, currentQuestion);
+    }
+    
+    private async Task<string?> PromptForFile()
+    {
+        OpenFileDialog fileDialog = new OpenFileDialog
+        { Filters = new List<FileDialogFilter> { new() { Name = "JSON files", Extensions = { "json", "JSON" }} }, 
+            AllowMultiple = false
+        };
+        var result = await fileDialog.ShowAsync(Functions.GetMainWindow(DataContext as MainMenuViewModel));
+    
+        return result?[0];
     }
 }

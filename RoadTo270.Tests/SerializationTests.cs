@@ -71,7 +71,8 @@ public class SerializationTests
             dynamic json = Py.Import("json");
             PyDict jsonContents = json.loads(File.ReadAllText("../../../../RoadTo270/test.json"));
             parties = Methods.CreatePartyList(jsonContents["Parties"].As<PyDict>());
-            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states, 
+                "../../../../RoadTo270/test.json");
         }
         
         PythonEngine.Shutdown();
@@ -97,7 +98,8 @@ public class SerializationTests
             dynamic json = Py.Import("json");
             PyDict jsonContents = json.loads(File.ReadAllText("../../../../RoadTo270/test.json"));
             parties = Methods.CreatePartyList(jsonContents["Parties"].As<PyDict>());
-            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states, 
+                "../../../../RoadTo270/test.json");
             tickets = Methods.CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
         }
         
@@ -128,7 +130,8 @@ public class SerializationTests
             PyDict jsonContents = json.loads(File.ReadAllText("../../../../RoadTo270/test.json"));
             parties = Methods.CreatePartyList(jsonContents["Parties"].As<PyDict>());
             issues = Methods.CreateIssuesList(jsonContents["Issues"].As<PyDict>());
-            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states);
+            candidates = Methods.CreateCandidatesList(jsonContents["Candidates"].As<PyDict>(), parties, states, 
+                "../../../../RoadTo270/test.json");
             tickets = Methods.CreateTicketsList(jsonContents["Tickets"].As<PyDict>(), parties, candidates);
             candidateQuestions = Methods.CreateQuestionsList(jsonContents["Questions"].As<PyDict>(), 
                 issues, states, candidates, tickets);
@@ -176,7 +179,7 @@ public static class Methods
     }
     
     public static ImmutableArray<Candidate> CreateCandidatesList(PyDict data, ImmutableArray<Party> parties, 
-        ImmutableArray<State> states)
+        ImmutableArray<State> states, string filePath)
     {
         List<Candidate> candidates = new List<Candidate>();
 
@@ -209,7 +212,7 @@ public static class Methods
             candidates.Add(new Candidate(candidateKey.As<string>(), candidate["Description"].As<string>(),
                 candidate["ImagePath"].As<string>(), candidate["AdvisorImagePath"].As<string>(),
                 affiliation, homeState, issueScores, stateModifiers.ToImmutableDictionary(), 
-                candidate["IsRunningMate"].As<bool>()));
+                candidate["IsRunningMate"].As<bool>(), filePath));
         }
 
         return candidates.ToImmutableArray();

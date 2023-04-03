@@ -16,11 +16,13 @@ public class Candidate: NamedObject
     public readonly double AggregateScore;
 
     public Candidate(string name, string description, string imagePath, string advisorImagePath, Party affiliation, State homeState, int[] issueScores, 
-        ImmutableDictionary<State, double> stateModifiers, bool isRunningMate) : base(name)
+        ImmutableDictionary<State, double> stateModifiers, bool isRunningMate, string filePath) : base(name)
     {
+        var folder = Functions.GetFolder(filePath);
+
         Description = description;
-        ImagePath = imagePath;
-        AdvisorImagePath = advisorImagePath;
+        ImagePath = folder + imagePath;
+        AdvisorImagePath = folder + advisorImagePath;
         Affiliation = affiliation;
         HomeState = homeState;
         IssueScores = issueScores;

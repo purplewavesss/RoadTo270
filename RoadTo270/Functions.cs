@@ -21,4 +21,14 @@ public static class Functions
         var window = viewModel.GameApp.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
         return (window!.MainWindow as MainWindow)!;
     }
+
+    public static string GetFolder(string file)
+    {
+        var pathComponents = file.Split("/");
+        string folder = "";
+
+        for (int pathIndex = 0; pathIndex < pathComponents.Length - 1; pathIndex++) folder += pathComponents[pathIndex] + "/";
+
+        return folder;
+    }
 }
