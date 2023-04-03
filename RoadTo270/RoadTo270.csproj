@@ -35,5 +35,8 @@
       <Compile Update="Views\Serialization.cs">
         <DependentUpon>MainMenuView.axaml</DependentUpon>
       </Compile>
+      <Compile Update="Views\PresidentSelectionView.axaml.cs">
+        <DependentUpon>PresidentSelectionView.axaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

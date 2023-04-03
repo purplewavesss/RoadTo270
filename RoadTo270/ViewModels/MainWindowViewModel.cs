@@ -12,15 +12,14 @@ public class MainWindowViewModel : ViewModelBase, IAccessApplication
     
     public ViewModelBase Content
     {
-        get => content;
-        set => this.RaiseAndSetIfChanged(ref content, value);
+        get => _content;
+        set => this.RaiseAndSetIfChanged(ref _content, value);
     }
 
     public readonly MapView MainWindowMapView;
     public readonly MainMenuViewModel MainWindowMainMenuViewModel;
-    public readonly MapViewModel MainWindowMapViewModel;
     public readonly CreditsViewModel MainWindowCreditsViewModel;
-    private ViewModelBase content;
+    private ViewModelBase _content;
 
     public MainWindowViewModel(App gameApp)
     {
@@ -28,7 +27,6 @@ public class MainWindowViewModel : ViewModelBase, IAccessApplication
         MainWindowMainMenuViewModel = new MainMenuViewModel(GameApp);
         Content = MainWindowMainMenuViewModel;
         MainWindowMapView = new MapView();
-        MainWindowMapViewModel = new MapViewModel();
         MainWindowCreditsViewModel = new CreditsViewModel(GameApp, MainWindowMainMenuViewModel);
     }
 }

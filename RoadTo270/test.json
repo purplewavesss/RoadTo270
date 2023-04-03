@@ -3,7 +3,8 @@
   {
     "bleh": 
     {
-      "Color": [255, 0, 0]
+      "Color": [255, 0, 0],
+      "Position": "Center"
     }
   },
   

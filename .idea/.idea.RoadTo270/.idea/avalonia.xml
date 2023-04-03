@@ -10,6 +10,7 @@
         <entry key="RoadTo270/Views/MainMenuView.axaml" value="RoadTo270/RoadTo270.csproj" />
         <entry key="RoadTo270/Views/MainWindow.axaml" value="RoadTo270/RoadTo270.csproj" />
         <entry key="RoadTo270/Views/MapView.axaml" value="RoadTo270/RoadTo270.csproj" />
+        <entry key="RoadTo270/Views/PresidentSelectionView.axaml" value="RoadTo270/RoadTo270.csproj" />
       </map>
     </option>
   </component>

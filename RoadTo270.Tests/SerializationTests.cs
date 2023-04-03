@@ -156,7 +156,7 @@ public static class Methods
 
             Tuple<int, int, int> colorValues = new Tuple<int, int, int>(colors[0], colors[1], colors[2]);
 
-            parties.Add(new Party(partyKey.As<string>(), colorValues));
+            parties.Add(new Party(partyKey.As<string>(), colorValues, party["Position"].As<string>()));
         }
 
         return parties.ToImmutableArray();
