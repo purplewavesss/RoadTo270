@@ -2,6 +2,7 @@
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media.Imaging;
 using RoadTo270.Models;
 using RoadTo270.ViewModels;
 
@@ -39,7 +40,7 @@ public partial class PresidentSelectionView : UserControl
 
             Candidate selectedCandidate = context.PlayableCandidates[CandidateSelectBox.SelectedItem as string];
 
-            context.CandidateImage = selectedCandidate.ImagePath;
+            context.CandidateImage = new Bitmap(selectedCandidate.ImagePath);
             context.CandidateName = selectedCandidate.Name;
             context.CandidateParty = selectedCandidate.Affiliation.Name;
             context.CandidateHomeState = selectedCandidate.HomeState.Name;

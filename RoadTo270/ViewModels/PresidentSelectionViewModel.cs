@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Avalonia.Media.Imaging;
 using ReactiveUI;
 using RoadTo270.Models;
 
@@ -10,7 +11,7 @@ public class PresidentSelectionViewModel: ViewModelBase
 {
     public App GameApp { get; }
     
-    public string CandidateImage 
+    public Bitmap CandidateImage 
     {
         get => _candidateImage;
         set => this.RaiseAndSetIfChanged(ref _candidateImage, value);
@@ -49,7 +50,7 @@ public class PresidentSelectionViewModel: ViewModelBase
     private string _candidateParty;
     private string _candidateHomeState;
     private string _candidateDescription;
-    private string _candidateImage;
+    private Bitmap _candidateImage;
 
     public PresidentSelectionViewModel(App gameApp, Scenario game, MainMenuViewModel previousView)
     {
@@ -73,7 +74,7 @@ public class PresidentSelectionViewModel: ViewModelBase
 
         Candidate firstCandidate = PlayableCandidates[PlayableCandidates.Keys.ToList()[0]];
         
-        CandidateImage = firstCandidate.ImagePath;
+        CandidateImage = new Bitmap(firstCandidate.ImagePath);
         CandidateName = firstCandidate.Name;
         CandidateParty = firstCandidate.Affiliation.Name;
         CandidateHomeState = firstCandidate.HomeState.Name;
