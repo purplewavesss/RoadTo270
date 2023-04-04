@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
 using RoadTo270.Models;
@@ -21,6 +22,14 @@ public partial class PresidentSelectionView : UserControl
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+    }
+    
+    private void Back(object? sender, RoutedEventArgs e)
+    {
+        SelectBoxInitialized = false;
+        var context = DataContext as PresidentSelectionViewModel;
+        var windowContext = Functions.GetMainWindow(context).DataContext as MainWindowViewModel;
+        windowContext.Content = context.PreviousView;
     }
     
     private void CandidateSelectBoxInitialized(object? sender, EventArgs e)

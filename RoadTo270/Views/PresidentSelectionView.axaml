@@ -62,7 +62,7 @@
                 </Style>
             </DockPanel.Styles>
             
-            <Button>Back</Button>
+            <Button Click="Back">Back</Button>
             <Button>Continue</Button>
         </DockPanel>
     </Grid>

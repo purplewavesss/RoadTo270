@@ -4,10 +4,11 @@ using System.Linq;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
 using RoadTo270.Models;
+using RoadTo270.Models.Interfaces;
 
 namespace RoadTo270.ViewModels;
 
-public class PresidentSelectionViewModel: ViewModelBase
+public class PresidentSelectionViewModel: ViewModelBase, IAccessApplication
 {
     public App GameApp { get; }
     
