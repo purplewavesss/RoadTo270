@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls.ApplicationLifetimes;
+﻿using System.Runtime.InteropServices;
+using Avalonia.Controls.ApplicationLifetimes;
 using RoadTo270.Models.Interfaces;
 using RoadTo270.Views;
 
@@ -24,10 +25,14 @@ public static class Functions
 
     public static string GetFolder(string file)
     {
-        var pathComponents = file.Split("/");
+        var split = "/";
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) split = "\\";
+
+        var pathComponents = file.Split(split);
         string folder = "";
 
-        for (int pathIndex = 0; pathIndex < pathComponents.Length - 1; pathIndex++) folder += pathComponents[pathIndex] + "/";
+        for (int pathIndex = 0; pathIndex < pathComponents.Length - 1; pathIndex++) folder += pathComponents[pathIndex] + split;
 
         return folder;
     }

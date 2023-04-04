@@ -3,13 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
-             x:Class="RoadTo270.Views.CandidateSelectionView"
+             x:Class="RoadTo270.Views.PresidentSelectionView"
              Width="800" Height="500">
-    <Grid RowDefinitions="*,5*,*">
-        <DockPanel Grid.Row="0" Margin="10, 20" HorizontalAlignment="Center">
+    <Grid RowDefinitions="*,5*,*" Name="MainGrid">
+        <DockPanel Grid.Row="0" Margin="10, 20" HorizontalAlignment="Center" Name="SelectPanel">
             <Label FontSize="20">Select Your Candidate:</Label>
-            <ComboBox Margin="10, 0" Items="{Binding PlayableCandidates.Keys}"
-            Name="CandidateSelectBox"/>
+            <ComboBox Margin="10, 0" Items="{Binding PlayableCandidates.Keys}" Name="CandidateSelectBox" 
+            Initialized="CandidateSelectBoxInitialized" SelectionChanged="CandidateSelectionChange"/>
         </DockPanel>
         
         <Border Grid.Row="1" Background="Black"
@@ -17,33 +17,35 @@
                 BorderThickness="2"
                 CornerRadius="3"
                 Padding="4"
-                Margin="10">
-            <Grid ColumnDefinitions="2*,3*">
-                <Image Grid.Column="0" Source="{Binding PlayableCandidates[#CandidateSelectBox.SelectedItem].ImagePath}"/>
+                Margin="10"
+                Name="CandidateInfoBorder">
+            <Grid ColumnDefinitions="2*,3*" Name="CandidateInfo">
+                <Image Grid.Column="0" Name="CandidateImage" Source="{Binding CandidateImage}"/>
             
-                <StackPanel Grid.Column="1">
+                <StackPanel Grid.Column="1" Name="CandidateFacts">
                     <StackPanel.Styles>
                         <Style Selector="DockPanel">
                             <Setter Property="Margin" Value="0, 5"/>
                         </Style>
                     </StackPanel.Styles>
                     
-                    <DockPanel>
+                    <DockPanel Name="NamePanel">
                         <Label FontStyle="Oblique" Content="Name:"/>
-                        <Label Content="{Binding PlayableCandidates[#CandidateSelectBox.SelectedItem].Name}"></Label>
+                        <Label Name="Name" Content="{Binding CandidateName}"/>
                     </DockPanel>
                     
-                    <DockPanel>
+                    <DockPanel Name="PartyPanel">
                         <Label FontStyle="Oblique" Content="Party:"/>
-                        <Label Content="{Binding PlayableCandidates[#CandidateSelectBox.SelectedItem].Affiliation.Name}"></Label>
+                        <Label Name="Affiliation" Content="{Binding CandidateParty}"/>
                     </DockPanel>
                     
-                    <DockPanel>
+                    <DockPanel Name="StatePanel">
                         <Label FontStyle="Oblique" Content="Home State:"/>
-                        <Label Content="{Binding PlayableCandidates[#CandidateSelectBox.SelectedItem].HomeState.Name}"></Label>
+                        <Label Name="HomeState" Content="{Binding CandidateHomeState}"/>
                     </DockPanel>
                     
-                    <TextBlock Margin="0, 5" Text="{Binding PlayableCandidates[#CandidateSelectBox.SelectedItem].Description}"/>
+                    <TextBlock Margin="0, 5" Name="Description" Text="{Binding CandidateDescription}"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
         </Border>

@@ -64,6 +64,15 @@ public partial class MainMenuView : UserControl
 
         var context = Functions.GetMainWindow(DataContext as MainMenuViewModel).DataContext as MainWindowViewModel;
         context!.Game = new Scenario(parties, issues, states, candidates, tickets, candidateQuestions, currentQuestion);
+        LoadCandidateMenu(context.Game);
+    }
+
+    private void LoadCandidateMenu(Scenario scenario)
+    {
+        var context = DataContext as MainMenuViewModel;
+        var candidateMenu = new PresidentSelectionViewModel(context.GameApp, scenario, (DataContext as MainMenuViewModel)!);
+        var windowContext = Functions.GetMainWindow(context).DataContext as MainWindowViewModel;
+        windowContext!.Content = candidateMenu;
     }
     
     private async Task<string?> PromptForFile()
